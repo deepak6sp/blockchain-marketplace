@@ -22,7 +22,7 @@ contract Marketplace {
     );
 
     constructor() public {
-        name = "Deepak Marketplace";
+        name = "Marketplace";
     }
 
     function createProduct(string memory _name, uint _price) public {

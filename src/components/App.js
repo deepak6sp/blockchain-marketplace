@@ -17,6 +17,8 @@ const App = () => {
   const [accounts, setAccounts] = useState(null);
   const [name, setName] = useState('')
   const [productList, setProductList] = useState([])
+  const [productName, setProductName] = useState('')
+  const [productPrice, setProductPrice] = useState('')
 
   const getName = async () => {
     const _name = await contract.methods.name().call()
@@ -25,6 +27,7 @@ const App = () => {
 
   const getProductList = async () => {
     const productCount = await contract.methods.productCount().call()
+    console.log("productCount", productCount)
     const allProducts = []
     for (var i = 1; i <= productCount; i++) {
       const task = await contract.methods.products(i).call();
@@ -92,14 +95,32 @@ const App = () => {
   }
 
   const getProducts = () => {
+    console.log({ productList })
     return productList.map((product, i) => {
       return (
-        <tr style={{height: "50px"}} key={i}>
-      <td>{product.id.toString()}</td>
-      <td key={i}>{product.name}</td>
-      <td><button style={{width: "200px"}} onClick={() => handleClick(product.id.toString())}>Buy</button></td>
-      </tr>)
+        <tr height="50" key={i}>
+          <td>{product.id.toString()}</td>
+          <td key={i}>{product.name}</td>
+          <td><button style={{ width: "200px" }} onClick={() => handleClick(product.id.toString())}>Buy</button></td>
+        </tr>)
     })
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log("submitting...")
+    const newProduct = await contract.methods.createProduct(productName, productPrice).send({ from: accounts[0] })
+    console.log("submitted", newProduct)
+    window.location.reload()
+  }
+
+
+  const handleProductName = (event) => {
+    setProductName(event.target.value)
+  }
+
+  const handlePrice = (event) => {
+    setProductPrice(event.target.value)
   }
 
   return (
@@ -110,21 +131,33 @@ const App = () => {
       <header style={{ backgroundColor: "#ccc" }}>
         <div id="provider">{provider}</div>
         <div id="chainId">{chainId}</div>
-        <div>Seller account - {accounts[1]}</div>
-        <div>Buyer account - {accounts[2]}</div>
+        <div>Seller account - {accounts[0]}</div>
+        <div>Buyer account - {accounts[1]}</div>
       </header>
       <br />
-      <h1>List Products of {name}</h1>
-      <table>
-        <thead>
-        <tr style={{ backgroundColor: "#ddd" }}>
-          <th width="200px">Number</th>
-          <th width="200px">Name</th>
-          <th width="200px">Status</th>
-        </tr>
-        </thead>
-        <tbody>{getProducts()}</tbody>
-      </table>
+      <div style={{ margin: "10px" }}>
+        <h3>Add product</h3>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", width: "400px" }}>
+          <input type="text" onChange={handleProductName} value={productName} placeholder='enter product name here' />
+          <br />
+          <input type="text" onChange={handlePrice} value={productPrice} placeholder='enter product price here' />
+          <br />
+          <button type="submit">Submit</button>
+        </form>
+        <br></br>
+        <hr/>
+        <h3>List Products from {name}</h3>
+        <table>
+          <thead>
+            <tr style={{ backgroundColor: "#ddd" }}>
+              <th width="200">Number</th>
+              <th width="200">Name</th>
+              <th width="200">Status</th>
+            </tr>
+          </thead>
+          <tbody>{getProducts()}</tbody>
+        </table>
+      </div>
     </>
   );
 }
