@@ -12,7 +12,7 @@ contract('MarketPlace', ([deployer, seller, buyer]) => {
         })
 
         it("has a name", async () => {
-            assert.equal(await marketplace.name(), 'My Marketplace')
+            assert.equal(await marketplace.name(), 'Deepak Marketplace')
         })
 
     })
@@ -28,6 +28,7 @@ contract('MarketPlace', ([deployer, seller, buyer]) => {
         it("create products", async () => {
             assert.equal(productCount, 1)
             const event = result.logs[0].args
+            console.log("event", event.price)
             assert.equal(event.owner, seller, 'seller is correct')
         })
 
