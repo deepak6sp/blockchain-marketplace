@@ -12,7 +12,7 @@ contract('MarketPlace', ([deployer, seller, buyer]) => {
         })
 
         it("has a name", async () => {
-            assert.equal(await marketplace.name(), 'Deepak Marketplace')
+            assert.equal(await marketplace.name(), 'Marketplace')
         })
 
     })
@@ -21,6 +21,7 @@ contract('MarketPlace', ([deployer, seller, buyer]) => {
         let result, productCount;
 
         before(async () => {
+            console.log("seller>>>", seller)
             result = await marketplace.createProduct('Iphone', web3.utils.toWei('1', 'Ether'), { from: seller})
             productCount = await marketplace.productCount()
         });
@@ -28,13 +29,22 @@ contract('MarketPlace', ([deployer, seller, buyer]) => {
         it("create products", async () => {
             assert.equal(productCount, 1)
             const event = result.logs[0].args
-            console.log("event", event.price)
+            console.log("create event>>", event)
             assert.equal(event.owner, seller, 'seller is correct')
         })
 
         it("lists products", async () => {
             const product = await marketplace.products(productCount)
             assert.equal(product.name, 'Iphone', 'product name is correct')
+        })
+
+        it("buy products", async () => {
+            result = await marketplace.buyProduct(productCount, { from: buyer, value: web3.utils.toWei('1', 'Ether')})
+            // assert.equal(buyProduct.name, 'Iphone', 'product name is correct')
+            const event = result.logs[0].args
+            console.log("purchase event>>", event)
+            assert.equal(event.owner, buyer, 'buyer is correct')
+
         })
 
     })

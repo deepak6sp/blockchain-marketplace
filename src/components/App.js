@@ -90,8 +90,11 @@ const App = () => {
     return "loading..."
   }
 
-  const handleClick = (id) => {
-    console.log("event", id)
+  const handleClick = async (id, price) => {
+    console.log("event", id, price)
+    const buyProduct = await contract.methods.buyProduct(id).send({ from: accounts[1], value: price})
+    console.log("submitted buyProduct", buyProduct)
+
   }
 
   const getProducts = () => {
@@ -101,7 +104,9 @@ const App = () => {
         <tr height="50" key={i}>
           <td>{product.id.toString()}</td>
           <td key={i}>{product.name}</td>
-          <td><button style={{ width: "200px" }} onClick={() => handleClick(product.id.toString())}>Buy</button></td>
+          <td key={i}>{web3.utils.fromWei(product.price.toString(), 'ether')} eth</td>
+          <td key={i}>{product.owner}</td>
+          <td><button style={{ width: "200px" }} onClick={() => handleClick(product.id, product.price)}>Buy</button></td>
         </tr>)
     })
   }
@@ -109,7 +114,8 @@ const App = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("submitting...")
-    const newProduct = await contract.methods.createProduct(productName, productPrice).send({ from: accounts[0] })
+    const _productPrice = web3.utils.toWei(productPrice.toString(), 'ether');
+    const newProduct = await contract.methods.createProduct(productName, _productPrice).send({ from: accounts[0] })
     console.log("submitted", newProduct)
     window.location.reload()
   }
@@ -152,6 +158,8 @@ const App = () => {
             <tr style={{ backgroundColor: "#ddd" }}>
               <th width="200">Number</th>
               <th width="200">Name</th>
+              <th width="200">Price</th>
+              <th width="200">owner</th>
               <th width="200">Status</th>
             </tr>
           </thead>
